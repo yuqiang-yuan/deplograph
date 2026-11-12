@@ -29,9 +29,44 @@ Two environment notes for this machine (Wayland):
 
 ## Source layout
 
-- `src/main.rs` — bootstrap: app identity, window options, the first window.
-- `src/main_view.rs` — the window shell (title bar plus workspace). Product
-  views belong in `MainView::render_workspace`.
+- `src/main.rs` — bootstrap: app identity, theme + settings, window options, the
+  first window. Settings are re-saved on quit.
+- `src/main_view.rs` — the window shell: a title bar (font size, theme toggle,
+  settings) above the workspace. Product views belong in
+  `MainView::render_workspace`.
+- `src/appearance.rs` — how a setting change reaches the theme: swap light/dark,
+  resize the base font, persist, repaint. The title bar and the dialog both go
+  through it.
+- `src/settings_dialog.rs` — the settings dialog: edits a draft copy, `Save`
+  applies it (theme and `settings.json`), `Close` or Esc discards it.
+- `src/settings.rs` — `AppSettings` (theme, font size, window size) and its
+  `settings.json` round trip.
+- `src/assets.rs` — the app's own `AssetSource`: everything under `assets/` is
+  embedded in the binary, with `ExtraIcons` for icons outside gpui-kit's default
+  set.
+- `assets/themes/deplograph.json` — the app's light/dark theme, registered at
+  startup and swapped by the title-bar toggle. Unlisted keys fall back to
+  gpui-component's defaults, so a small file stays a full theme.
+- `assets/icons/` — the app's own SVGs, resolved by path
+  (`Icon::default().path("icons/deplograph.svg")`).
+
+## Settings
+
+Stored at `$XDG_CONFIG_HOME/<app id>/settings.json` (`~/.config/app.deplograph/`),
+written whenever a setting changes and once more on quit:
+
+```json
+{
+  "is_dark": true,
+  "font_size": 16.0,
+  "window_width": 1200.0,
+  "window_height": 800.0,
+  "window_maximized": false
+}
+```
+
+Missing fields fall back to defaults, so an older file keeps working after a new
+setting is added.
 
 ## Guides
 
