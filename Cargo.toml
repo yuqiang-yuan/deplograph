@@ -1,0 +1,9 @@
+[package]
+name = "deplograph"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+anyhow = "1"
+# Default features bring in `gpui_kit::component` and the default icon set.
+gpui-kit = "0.9"
