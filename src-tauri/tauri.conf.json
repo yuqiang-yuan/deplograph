@@ -12,9 +12,9 @@
   "app": {
     "windows": [
       {
-        "title": "deplograph",
-        "width": 800,
-        "height": 600
+        "title": "Deplograph",
+        "width": 1000,
+        "height": 700
       }
     ],
     "security": {
