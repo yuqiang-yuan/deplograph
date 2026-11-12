@@ -1,0 +1,9 @@
+@import "tailwindcss";
+@import "flyonui/variants.css"; /* Required for Js components */
+
+@plugin "flyonui" {
+    themes: light --default, dark --prefersdark;
+};
+
+@source "../node_modules/flyonui/flyonui.js"; /* Required for Js components */
+@plugin "@iconify/tailwind4";
