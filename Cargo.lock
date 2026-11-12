@@ -1169,6 +1169,7 @@ dependencies = [
  "dirs 7.0.0",
  "gpui-kit",
  "rust-embed",
+ "rust-i18n",
  "serde",
  "serde_json",
 ]

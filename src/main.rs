@@ -1,9 +1,14 @@
 mod appearance;
 mod assets;
 mod globals;
+mod i18n;
 mod main_view;
 mod settings;
 mod settings_dialog;
+
+// 应用自己的翻译：locales/ui.yml，缺 key 时回落到 en。
+// `i18n!` 在这里生成 `_rust_i18n_backend()`，下面的 `extend!` 会用到它。
+rust_i18n::i18n!("locales", fallback = "en");
 
 #[cfg(target_os = "linux")]
 use gpui_kit::WindowDecorations;
@@ -29,10 +34,20 @@ fn main() {
     app.on_reopen(open_main_window);
 
     app.run(|cx| {
+        // 组件自己的文案走 gpui-kit 内置的 locales；extend! 让本应用 locales/ui.yml 里
+        // `gpui_component:` 命名空间下的翻译与内置文案合并（同名 key 以本应用为准）。
+        //
+        // 必须早于 gpui_kit::init，且整个进程只能注册一次（重复注册会 panic）。
+        use gpui_kit::component as gpui_component;
+        rust_i18n::extend!(gpui_component);
+
         gpui_kit::init(cx);
         cx.set_app_identity(APP_ID, APP_NAME);
 
         let settings = AppSettings::load();
+
+        // 语言、主题、字号都必须在开窗口之前定好，否则第一帧画的是默认值
+        i18n::init_from_settings(&settings);
 
         load_app_theme(cx);
 

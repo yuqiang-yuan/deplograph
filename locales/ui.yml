@@ -1,0 +1,59 @@
+_version: 2
+
+app:
+    settings:
+        en: Settings
+        zh: 设置
+        zh-HK: 設定
+    theme:
+        en: Theme
+        zh: 主题
+        zh-HK: 主題
+    theme_description:
+        en: Light or dark appearance.
+        zh: 界面的明暗外观。
+        zh-HK: 介面的明暗外觀。
+    theme_light:
+        en: Light
+        zh: 亮色
+        zh-HK: 亮色
+    theme_dark:
+        en: Dark
+        zh: 暗色
+        zh-HK: 暗色
+    font_size:
+        en: Font size
+        zh: 字号
+        zh-HK: 字號
+    font_size_description:
+        en: Text size for the whole window.
+        zh: 整个窗口的文字大小。
+        zh-HK: 整個視窗的文字大小。
+    font_size_small:
+        en: Small
+        zh: 小
+        zh-HK: 小
+    font_size_regular:
+        en: Regular
+        zh: 常规
+        zh-HK: 常規
+    font_size_large:
+        en: Large
+        zh: 大
+        zh-HK: 大
+    language:
+        en: Language
+        zh: 显示语言
+        zh-HK: 顯示語言
+    language_description:
+        en: Language used by the app.
+        zh: 应用界面使用的语言。
+        zh-HK: 應用程式介面使用的語言。
+    save:
+        en: Save
+        zh: 保存
+        zh-HK: 儲存
+    close:
+        en: Close
+        zh: 关闭
+        zh-HK: 關閉

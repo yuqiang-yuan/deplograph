@@ -7,7 +7,10 @@ use gpui_kit::component::{
     ActiveTheme as _, Icon, TitleBar,
     button::{Button, ButtonVariants as _},
 };
-use gpui_kit::{App, Context, IntoElement, ParentElement as _, Render, Styled as _, Window, div};
+use gpui_kit::{
+    App, Context, InteractiveElement as _, IntoElement, MouseButton, ParentElement as _, Render,
+    Styled as _, Window, div,
+};
 
 use crate::globals::APP_NAME;
 use crate::settings_dialog;
@@ -89,12 +92,25 @@ fn app_mark(cx: &App) -> impl IntoElement {
 }
 
 /// 设置按钮：打开设置弹窗（保存和 Esc 取消都在弹窗里）。
+///
+/// 外面套一层 div 专门挡掉「左键按下」的冒泡，否则点击会被窗口拖动吃掉：
+/// 标题栏在左键按下时把 `should_move` 置真，之后指针只要动一下就 `start_window_move()`
+/// 去拖窗口，这一次点击就没了 —— 表现就是「有时能弹出、有时点不动」。
+/// gpui-component 自己的最小化/最大化/关闭按钮也是这么挡的（title_bar.rs 里的 on_mouse_down）。
+/// 点击本身不用管：Button 内部已经 `stop_propagation`，不会冒到标题栏的双击最大化。
 fn settings_button() -> impl IntoElement {
-    Button::new("settings-button")
-        .ghost()
-        .rounded_none()
-        .icon(IconName::Settings)
-        .tooltip("Settings")
-        .tooltip_placement(Placement::Bottom)
-        .on_click(|_, window, cx| settings_dialog::open(window, cx))
+    div()
+        .on_mouse_down(MouseButton::Left, |_, window, cx| {
+            window.prevent_default();
+            cx.stop_propagation();
+        })
+        .child(
+            Button::new("settings-button")
+                .ghost()
+                .rounded_none()
+                .icon(IconName::Settings)
+                .tooltip(rust_i18n::t!("app.settings").to_string())
+                .tooltip_placement(Placement::Bottom)
+                .on_click(|_, window, cx| settings_dialog::open(window, cx)),
+        )
 }

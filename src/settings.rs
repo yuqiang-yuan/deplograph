@@ -8,10 +8,21 @@ use serde::{Deserialize, Serialize};
 
 use crate::globals::APP_ID;
 
-/// 字号档位：设置页和标题栏共用同一份列表。
-pub const FONT_SIZES: [(f32, &str); 3] = [(14.0, "Small"), (16.0, "Regular"), (18.0, "Large")];
+/// 字号档位：数值 + `locales/ui.yml` 里的文案 key。
+///
+/// 标签走 i18n（不是写死英文），所以这里存的是 key，设置弹窗用 `t!` 取文案；
+/// 加档位时 ui.yml 里也要补上对应的 key（i18n 的测试会挡住漏掉的）。
+pub const FONT_SIZES: [(f32, &str); 3] = [
+    (14.0, "app.font_size_small"),
+    (16.0, "app.font_size_regular"),
+    (18.0, "app.font_size_large"),
+];
 
 const DEFAULT_FONT_SIZE: f32 = 16.0;
+
+/// 语言默认值：第一次启动、或设置文件里没存过 language 时用它。
+/// 支持哪些语言在 `crate::i18n::SUPPORTED_LOCALES`（和 `locales/ui.yml` 一一对应）。
+const DEFAULT_LANGUAGE: &str = "en";
 
 /// 应用设置，存到 `$XDG_CONFIG_HOME/<app id>/settings.json`。
 ///
@@ -23,6 +34,8 @@ pub struct AppSettings {
     /// 深色主题。None 表示还没选过，按浅色开。
     pub is_dark: Option<bool>,
     pub font_size: Option<f32>,
+    /// 界面语言。None 表示还没选过，按 [`DEFAULT_LANGUAGE`] 走。
+    pub language: Option<String>,
     pub window_width: Option<f32>,
     pub window_height: Option<f32>,
     pub window_maximized: Option<bool>,
@@ -81,6 +94,10 @@ impl AppSettings {
         self.font_size.unwrap_or(DEFAULT_FONT_SIZE)
     }
 
+    pub fn language(&self) -> &str {
+        self.language.as_deref().unwrap_or(DEFAULT_LANGUAGE)
+    }
+
     pub fn window_maximized(&self) -> bool {
         self.window_maximized.unwrap_or_default()
     }
@@ -91,6 +108,7 @@ impl Default for AppSettings {
         Self {
             is_dark: Some(true),
             font_size: Some(DEFAULT_FONT_SIZE),
+            language: Some(DEFAULT_LANGUAGE.to_string()),
             window_width: Some(1200.0),
             window_height: Some(800.0),
             window_maximized: Some(false),
@@ -111,6 +129,7 @@ mod tests {
         let settings = AppSettings {
             is_dark: Some(false),
             font_size: Some(14.0),
+            language: Some("zh-HK".to_string()),
             window_width: Some(1000.0),
             window_height: Some(700.0),
             window_maximized: Some(true),
@@ -122,12 +141,15 @@ mod tests {
         assert_eq!(loaded.font_size, Some(14.0));
         assert_eq!(loaded.window_width, Some(1000.0));
         assert_eq!(loaded.window_maximized, Some(true));
+        assert_eq!(loaded.language(), "zh-HK");
 
         // 老配置文件缺字段时按 Default 补，而不是整个反序列化失败
         fs::write(&path, "{\"is_dark\": false}").unwrap();
         let partial = AppSettings::load_from(&path);
         assert!(!partial.is_dark());
         assert_eq!(partial.font_size(), DEFAULT_FONT_SIZE);
+        // 没保存过语言 → 默认英语
+        assert_eq!(partial.language(), DEFAULT_LANGUAGE);
 
         // 文件不存在、内容不是 JSON 都退到默认值
         let _ = fs::remove_dir_all(&dir);
