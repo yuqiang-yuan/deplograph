@@ -6,13 +6,10 @@ use gpui_kit::component::empty::{
 use gpui_kit::component::{
     ActiveTheme as _, Icon, TitleBar,
     button::{Button, ButtonVariants as _},
-    menu::{DropdownMenu as _, PopupMenuItem},
 };
 use gpui_kit::{App, Context, IntoElement, ParentElement as _, Render, Styled as _, Window, div};
 
-use crate::appearance;
 use crate::globals::APP_NAME;
-use crate::settings::{AppSettings, FONT_SIZES};
 use crate::settings_dialog;
 
 /// 窗口外壳：标题栏 + 一屏内容。
@@ -25,7 +22,7 @@ impl MainView {
         Self
     }
 
-    /// 标题栏：左边是应用标记，右边是字号、主题、设置三个控件。
+    /// 标题栏：左边是应用标记，右边只有设置（字号、明暗这些都在设置弹窗里）。
     fn render_title_bar(&self, cx: &mut Context<Self>) -> impl IntoElement {
         TitleBar::new().child(
             div()
@@ -35,8 +32,6 @@ impl MainView {
                 .gap_1()
                 .child(app_mark(cx))
                 .child(div().flex_grow_1())
-                .child(font_size_button())
-                .child(theme_button(cx))
                 .child(settings_button()),
         )
     }
@@ -91,49 +86,6 @@ fn app_mark(cx: &App) -> impl IntoElement {
                 .text_color(cx.theme().primary),
         )
         .child(div().text_sm().child(APP_NAME))
-}
-
-/// 字号菜单：Small / Regular / Large，选完立刻生效并落盘。
-fn font_size_button() -> impl IntoElement {
-    Button::new("font-size-button")
-        .ghost()
-        .rounded_none()
-        .icon(IconName::ALargeSmall)
-        .tooltip("Font size")
-        .tooltip_placement(Placement::Bottom)
-        .dropdown_menu(|menu, _, cx| {
-            let current = cx.global::<AppSettings>().font_size();
-
-            FONT_SIZES.iter().fold(menu, |menu, (size, label)| {
-                let size = *size;
-                menu.item(
-                    PopupMenuItem::new(*label)
-                        .checked(current == size)
-                        .on_click(move |_, _, cx| appearance::set_font_size(size, cx)),
-                )
-            })
-        })
-}
-
-/// 明暗切换按钮：当前是深色就显示月亮，点一下切到另一个。
-fn theme_button(cx: &App) -> impl IntoElement {
-    let is_dark = cx.theme().is_dark();
-
-    Button::new("theme-button")
-        .ghost()
-        .rounded_none()
-        .icon(if is_dark {
-            IconName::Moon
-        } else {
-            IconName::Sun
-        })
-        .tooltip(if is_dark {
-            "Switch to light theme"
-        } else {
-            "Switch to dark theme"
-        })
-        .tooltip_placement(Placement::Bottom)
-        .on_click(|_, _, cx| appearance::set_dark_mode(!cx.theme().is_dark(), cx))
 }
 
 /// 设置按钮：打开设置弹窗（保存和 Esc 取消都在弹窗里）。

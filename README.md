@@ -31,12 +31,10 @@ Two environment notes for this machine (Wayland):
 
 - `src/main.rs` — bootstrap: app identity, theme + settings, window options, the
   first window. Settings are re-saved on quit.
-- `src/main_view.rs` — the window shell: a title bar (font size, theme toggle,
-  settings) above the workspace. Product views belong in
-  `MainView::render_workspace`.
+- `src/main_view.rs` — the window shell: a title bar (app mark, settings button)
+  above the workspace. Product views belong in `MainView::render_workspace`.
 - `src/appearance.rs` — how a setting change reaches the theme: swap light/dark,
-  resize the base font, persist, repaint. The title bar and the dialog both go
-  through it.
+  resize the base font, persist, repaint. The settings dialog goes through it.
 - `src/settings_dialog.rs` — the settings dialog: edits a draft copy, `Save`
   applies it (theme and `settings.json`), `Close` or Esc discards it.
 - `src/settings.rs` — `AppSettings` (theme, font size, window size) and its
